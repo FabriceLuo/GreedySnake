@@ -10,6 +10,12 @@ class GreedySnake : public QMainWindow
 public:
     GreedySnake(QWidget *parent = 0);
     ~GreedySnake();
+protected:
+
+private:
+    QString m_windowName;
+    QSize m_windowSize;
+
 };
 
 #endif // GREEDYSNAKE_H
