@@ -7,7 +7,8 @@
 using namespace std;
 
 class QPoint;
-
+class QMenu;
+class QAction;
 
 class GreedySnake : public QMainWindow
 {
@@ -26,9 +27,18 @@ private:
     QString     m_windowName;
     QSize       m_windowSize;
     int         m_edgeLength;
+
+
+    QMenu *controlMenu;
+    QAction *startAction;
+    QAction *pauseAction;
+    QAction *stopAction;
+
     void        initMenuBar();
 private slots:
     void startGame();
+    void stopGame();
+    void pauseGame();
 
 };
 

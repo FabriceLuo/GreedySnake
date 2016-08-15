@@ -31,15 +31,34 @@ void GreedySnake::initMenuBar()
 {
     QMenuBar *menu=menuBar();
 
-    QMenu *controlMenu = new QMenu("Control");
-    QAction *startAction= new QAction("Start", this);
+    controlMenu = new QMenu("Control");
+
+    startAction= new QAction("Start", this);
     connect(startAction, SIGNAL(triggered(bool)),this, SLOT(startGame()));
     controlMenu->addAction(startAction);
+
+    pauseAction= new QAction("Pause", this);
+    connect(pauseAction, SIGNAL(triggered(bool)),this, SLOT(pauseGame()));
+    controlMenu->addAction(pauseAction);
+
+    stopAction= new QAction("Stop", this);
+    connect(stopAction, SIGNAL(triggered(bool)),this, SLOT(stopGame()));
+    controlMenu->addAction(stopAction);
 
     menu->addMenu(controlMenu);
 }
 
 void GreedySnake::startGame()
+{
+
+}
+
+void GreedySnake::stopGame()
+{
+
+}
+
+void GreedySnake::pauseGame()
 {
 
 }
