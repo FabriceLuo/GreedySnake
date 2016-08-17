@@ -19,22 +19,27 @@ public:
     ~GreedySnake();
 protected:
     vector<QPoint> *m_snake;
-    //debug info
-    void printDebugLine();
     void paintEvent(QPaintEvent *event);
 
 private:
-    QString     m_windowName;
-    QSize       m_windowSize;
-    int         m_edgeLength;
+    QString         m_windowName;
+    QSize           m_windowSize;
+    QSize           m_menubarSize;
+    int             m_edgeLength;
+    bool            m_enableDebug;
 
 
-    QMenu *controlMenu;
-    QAction *startAction;
-    QAction *pauseAction;
-    QAction *stopAction;
+    QMenu           *controlMenu;
+    QAction         *startAction;
+    QAction         *pauseAction;
+    QAction         *stopAction;
 
-    void        initMenuBar();
+    void            initMenuBar();
+    void            initStatusBar();
+    //debug info
+    void            echoDebug();
+    void            drawDebugLine(QPainter *painter);
+
 private slots:
     void startGame();
     void stopGame();
