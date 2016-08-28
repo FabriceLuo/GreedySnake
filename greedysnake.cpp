@@ -12,17 +12,21 @@
 #include <QStyle>
 
 GreedySnake::GreedySnake(QWidget *parent)
-    : QMainWindow(parent), m_windowName("GreedySnake"), m_windowSize(800, 600), m_edgeLength(20)
+    : QMainWindow(parent), m_windowName("GreedySnake"), m_windowUnitSize(40, 30), m_edgeLength(20)
 {
 
     setWindowTitle(m_windowName);
+
+    m_windowSize = QSize(m_windowUnitSize.width() * m_edgeLength, m_windowUnitSize.height() * m_edgeLength);
     setFixedSize(m_windowSize);
-    resize(m_windowSize);
+
     QDesktopWidget *desktop = QApplication::desktop();
     move((desktop->width() - this->width())/2, (desktop->height() - this->height())/2);
 
     initMenuBar();
     initStatusBar();
+
+    enableDebug(true);
 }
 
 GreedySnake::~GreedySnake()
@@ -49,7 +53,6 @@ void GreedySnake::initMenuBar()
     controlMenu->addAction(stopAction);
 
     menu->addMenu(controlMenu);
-
 }
 
 void GreedySnake::startGame()
@@ -59,7 +62,14 @@ void GreedySnake::startGame()
 
 void GreedySnake::stopGame()
 {
-
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Stop Game"));
+    msgBox.setText("Are you sure to stop game");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    if(msgBox.exec() == QMessageBox::Yes)
+    {
+        setStatusTip(tr("Please start game"));
+    }
 }
 
 void GreedySnake::pauseGame()
@@ -73,16 +83,16 @@ void GreedySnake::paintEvent(QPaintEvent *event)
     //painter.setPen(QPen(Qt::black, 12, Qt::DashLine, Qt::RoundCap));
     //painter.drawLine(QPoint(20,20), QPoint(200, 200));
 
-    drawDebugLine(&painter);
+    echoDebug(&painter);
 }
 
-void GreedySnake::echoDebug()
+void GreedySnake::echoDebug(QPainter *painter)
 {
     if(!m_enableDebug)
     {
         return;
     }
-    //drawDebugLine();
+    drawDebugLine(painter);
 }
 
 void GreedySnake::drawDebugLine(QPainter *painter)
@@ -110,11 +120,18 @@ void GreedySnake::drawDebugLine(QPainter *painter)
         startPoint.setX(startPoint.x() + m_edgeLength);
     }
 
+
 }
 
 void GreedySnake::initStatusBar()
 {
     statusBar()->showMessage("Ready");
+}
+
+bool GreedySnake::enableDebug(bool enable)
+{
+    m_enableDebug = enable;
+    return m_enableDebug;
 }
 
 

@@ -17,6 +17,8 @@ class GreedySnake : public QMainWindow
 public:
     GreedySnake(QWidget *parent = 0);
     ~GreedySnake();
+
+    bool enableDebug(bool enable);
 protected:
     vector<QPoint> *m_snake;
     void paintEvent(QPaintEvent *event);
@@ -24,6 +26,7 @@ protected:
 private:
     QString         m_windowName;
     QSize           m_windowSize;
+    QSize           m_windowUnitSize;
     QSize           m_menubarSize;
     int             m_edgeLength;
     bool            m_enableDebug;
@@ -37,7 +40,7 @@ private:
     void            initMenuBar();
     void            initStatusBar();
     //debug info
-    void            echoDebug();
+    void            echoDebug(QPainter *painter);
     void            drawDebugLine(QPainter *painter);
 
 private slots:
