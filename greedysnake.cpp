@@ -12,7 +12,8 @@
 #include <QStyle>
 
 GreedySnake::GreedySnake(QWidget *parent)
-    : QMainWindow(parent), m_windowName("GreedySnake"), m_windowUnitSize(40, 30), m_edgeLength(20)
+    : QMainWindow(parent), m_windowName("GreedySnake"), m_windowUnitSize(40, 30),
+      m_edgeLength(20), m_memberInitLength(5)
 {
 
     setWindowTitle(m_windowName);
@@ -25,6 +26,7 @@ GreedySnake::GreedySnake(QWidget *parent)
 
     initMenuBar();
     initStatusBar();
+    initSnakeMember();
 
     enableDebug(true);
 }
@@ -84,6 +86,7 @@ void GreedySnake::paintEvent(QPaintEvent *event)
     //painter.drawLine(QPoint(20,20), QPoint(200, 200));
 
     echoDebug(&painter);
+    drawSnake(&painter);
 }
 
 void GreedySnake::echoDebug(QPainter *painter)
@@ -134,8 +137,28 @@ bool GreedySnake::enableDebug(bool enable)
     return m_enableDebug;
 }
 
+void GreedySnake::initSnakeMember()
+{
+    for(int i = 0; i < m_memberInitLength; i++)
+    {
+        if(i < m_windowUnitSize.width())
+        {
+            m_snake.push_back(QPoint(i, 0));
+        }
+    }
+}
 
-
+void GreedySnake::drawSnake(QPainter *painter)
+{
+    vector<QPoint>::iterator start = m_snake.begin();
+    vector<QPoint>::iterator end   = m_snake.end();
+    painter->setBrush(QBrush(Qt::black));
+    while(start != end)
+    {
+        painter->drawRect(start->x() * m_edgeLength, start->y() * m_edgeLength, m_edgeLength, m_edgeLength);
+        start++;
+    }
+}
 
 
 

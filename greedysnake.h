@@ -20,7 +20,7 @@ public:
 
     bool enableDebug(bool enable);
 protected:
-    vector<QPoint> *m_snake;
+    vector<QPoint> m_snake;
     void paintEvent(QPaintEvent *event);
 
 private:
@@ -29,6 +29,7 @@ private:
     QSize           m_windowUnitSize;
     QSize           m_menubarSize;
     int             m_edgeLength;
+    int             m_memberInitLength;
     bool            m_enableDebug;
 
 
@@ -39,6 +40,9 @@ private:
 
     void            initMenuBar();
     void            initStatusBar();
+    void            initSnakeMember();
+    void            drawSnake(QPainter *painter);
+
     //debug info
     void            echoDebug(QPainter *painter);
     void            drawDebugLine(QPainter *painter);
