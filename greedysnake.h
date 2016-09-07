@@ -32,6 +32,7 @@ protected:
     void paintEvent(QPaintEvent *event);
     void timerEvent(QTimerEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
     bool generateSnake(list<QPoint> &ve, SNAKE_MOVE_DIRECTION m_snakeDirection);
     bool generateFood(list<QPoint> &food, list<QPoint> &snake);
 
@@ -47,6 +48,8 @@ private:
     int             m_snakeMoveTimer;
     int             m_snakeMoveInterval;
     bool            m_enableDebug;
+    bool            m_speedFlag;
+    int             m_speedMoveInterval;
 
     SNAKE_MOVE_DIRECTION m_snakeDirection;
 

@@ -17,7 +17,8 @@
 
 GreedySnake::GreedySnake(QWidget *parent)
     : QMainWindow(parent), m_windowName("GreedySnake"), m_windowUnitSize(40, 30),
-      m_edgeLength(20), m_memberInitLength(5), m_snakeMoveInterval(1000), m_snakeDirection(SNAKE_MOVE_RIGHT)
+      m_edgeLength(20), m_memberInitLength(5), m_snakeMoveInterval(1000),
+      m_snakeDirection(SNAKE_MOVE_RIGHT),m_speedMoveInterval(100)
 {
 
     setWindowTitle(m_windowName);
@@ -65,6 +66,20 @@ void GreedySnake::initMenuBar()
 
 void GreedySnake::startGame()
 {
+
+    pauseAction->setDisabled(false);
+    stopAction->setDisabled(false);
+    if(0 == QString::compare(startAction->text(), tr("Restart")))
+    {
+        m_snake.clear();
+        m_food.clear();
+
+        initSnakeMember();
+    }
+    else
+    {
+        startAction->setText(tr("Restart"));
+    }
     m_snakeMoveTimer = startTimer(m_snakeMoveInterval);
 }
 
@@ -74,15 +89,34 @@ void GreedySnake::stopGame()
     msgBox.setWindowTitle(tr("Stop Game"));
     msgBox.setText("Are you sure to stop game");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    if(msgBox.exec() == QMessageBox::Yes)
+    if(msgBox.exec() != QMessageBox::Yes)
     {
-        setStatusTip(tr("Please start game"));
+        return;
     }
+
+    m_snake.clear();
+    m_food.clear();
+    if(m_snakeMoveTimer > 0)
+    {
+        killTimer(m_snakeMoveTimer);
+        m_snakeMoveTimer = 0;
+
+        startAction->setText(tr("start"));
+        pauseAction->setDisabled(true);
+        stopAction->setDisabled(true);
+    }
+    setStatusTip(tr("Please start game"));
 }
 
 void GreedySnake::pauseGame()
 {
+    if(m_snakeMoveTimer > 0)
+    {
+        killTimer(m_snakeMoveTimer);
+        m_snakeMoveTimer = 0;
 
+        startAction->setText(tr("Continue"));
+    }
 }
 
 void GreedySnake::paintEvent(QPaintEvent *event)
@@ -211,6 +245,19 @@ bool GreedySnake::generateSnake(list<QPoint> &li, SNAKE_MOVE_DIRECTION m_snakeDi
     }
 
     li.push_front(head);
+    //check snake eat food
+    list<QPoint>::iterator start = m_food.begin();
+    list<QPoint>::iterator end = m_food.end();
+    while(start != end)
+    {
+        if(*start == head)
+        {
+            m_food.erase(start);
+            return true;
+        }
+        start++;
+    }
+
     li.pop_back();
     return true;
 }
@@ -220,18 +267,27 @@ void GreedySnake::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Left:
         m_snakeDirection = SNAKE_MOVE_LEFT;
+        m_speedFlag = true;
         break;
     case Qt::Key_Right:
         m_snakeDirection = SNAKE_MOVE_RIGHT;
+        m_speedFlag = true;
         break;
     case Qt::Key_Up:
         m_snakeDirection = SNAKE_MOVE_UP;
+        m_speedFlag = true;
         break;
     case Qt::Key_Down:
         m_snakeDirection = SNAKE_MOVE_DOWN;
+        m_speedFlag = true;
         break;
     default:
         break;
+    }
+    if(m_speedFlag && m_snakeMoveTimer > 0)
+    {
+        killTimer(m_snakeMoveTimer);
+        m_snakeMoveTimer = startTimer(m_speedMoveInterval);
     }
 }
 
@@ -240,12 +296,12 @@ bool GreedySnake::generateFood(list<QPoint> &food, list<QPoint> &snake)
     int foodMaxCount = 1;
     int foodNowCount = 0;
 
-    food.empty();
     srand(time(0));
     while(foodNowCount < foodMaxCount)
     {
-        int x = (int)(rand() * 1.0 / RAND_MAX) * m_windowUnitSize.width();
-        int y = (int)(rand() * 1.0 / RAND_MAX) * m_windowUnitSize.height();
+
+        int x = (int)(rand() * 1.0 / RAND_MAX * m_windowUnitSize.width());
+        int y = (int)(rand() * 1.0 / RAND_MAX * m_windowUnitSize.height());
 
         list<QPoint>::iterator start = snake.begin();
         list<QPoint>::iterator end   = snake.end();
@@ -284,7 +340,7 @@ bool GreedySnake::checkGameOver(list<QPoint> &ve, QPoint head)
     }
 
     //check zzzzz
-    if(head.x() > m_windowUnitSize.width() || head.x() < 0 || head.y() > m_windowSize.height() || head.y() < 0)
+    if(head.x() > m_windowUnitSize.width() || head.x() < 0 || head.y() > m_windowUnitSize.height() || head.y() < 0)
     {
         return true;
     }
@@ -293,8 +349,16 @@ bool GreedySnake::checkGameOver(list<QPoint> &ve, QPoint head)
 
 void GreedySnake::gameOver()
 {
+
     killTimer(m_snakeMoveTimer);
-    QMessageBox::aboutQt(this);
+
+    m_snake.empty();
+
+    pauseAction->setDisabled(true);
+    stopAction->setDisabled(true);
+
+    setStatusTip(tr("the game is over, please to restart"));
+    QMessageBox::information(this, tr("GreedySnake"), tr("Game Over"));
 }
 
 void GreedySnake::drawFood(QPainter *painter)
@@ -306,8 +370,27 @@ void GreedySnake::drawFood(QPainter *painter)
     painter->setBrush(QBrush(Qt::red));
     while(start != end)
     {
-        painter->drawRect(start->x(), start->y(), m_edgeLength, m_edgeLength);
+        painter->drawRect(start->x() * m_edgeLength, start->y() * m_edgeLength, m_edgeLength, m_edgeLength);
         start++;
+    }
+}
+
+void GreedySnake::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Left:
+    case Qt::Key_Right:
+    case Qt::Key_Up:
+    case Qt::Key_Down:
+        if(m_speedFlag && m_snakeMoveTimer > 0)
+        {
+            m_speedFlag = false;
+            killTimer(m_snakeMoveTimer);
+            m_snakeMoveTimer = startTimer(m_snakeMoveInterval);
+        }
+        break;
+    default:
+        break;
     }
 }
 
